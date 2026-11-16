@@ -61,6 +61,16 @@ fixtures/                        test fixtures (.json generatable, .fig human-bu
 docs/specs/                      per-issue specs (LS-X.md)
 ```
 
+## Shared context
+
+Cross-repo truth (product brief, decisions, positioning, shared agent rules) lives in the private
+`LocaleSync/localesync-context` repo, cloned as a sibling of this one (`../localesync-context`).
+A SessionStart hook in `.claude/settings.json` pulls it at the start of every Claude Code session.
+Read `../localesync-context/agents/shared-rules.md` before starting work; it says what to read
+on demand and what must be committed back (decisions, cross-repo contracts) before a session ends.
+
+@../localesync-context/agents/shared-rules.md
+
 ## More
 
 Full conventions, the Figma API pins, the contracts rule, and the spec template live in
