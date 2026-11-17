@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "additionalDirectories": ["../localesync-context"]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "git -C \"$CLAUDE_PROJECT_DIR/../localesync-context\" pull --ff-only --quiet 2>/dev/null && echo 'localesync-context: synced to latest.' || echo 'localesync-context: NOT synced (sibling clone missing, offline, or local changes). Setup: https://github.com/LocaleSync/localesync-context#setup'"
+          }
+        ]
+      }
+    ]
+  }
+}
