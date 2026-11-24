@@ -9,6 +9,7 @@ import type {
 	PreviewMap,
 	PreviewRow,
 } from './models';
+import type { LikePromptAction } from './community';
 import type { ProPillar } from './pro';
 
 export type ScanScope = 'page' | 'selection';
@@ -91,6 +92,14 @@ export interface TelemetryMark extends Envelope<'telemetry-mark'> {
 }
 // LS-13 §1.2. Request, once per launch; answered by `telemetry-state`.
 export type TelemetryStateRequest = Envelope<'telemetry-state-request'>;
+// LS-35. Request, once per panel mount; answered by `like-prompt-state`.
+export type LikePromptStateRequest = Envelope<'like-prompt-state-request'>;
+// LS-35. Command: `like` opens the Community page via figma.openExternal; either action persists
+// the dismissal in clientStorage. Answers `progress` (or `internal` if openExternal throws, in
+// which case nothing is persisted).
+export interface LikePromptClose extends Envelope<'like-prompt-close'> {
+	action: LikePromptAction;
+}
 
 export type UiToMain =
 	| ScanRequest
@@ -110,7 +119,9 @@ export type UiToMain =
 	| ResizeWindow
 	| OpenWaitlist
 	| TelemetryMark
-	| TelemetryStateRequest;
+	| TelemetryStateRequest
+	| LikePromptStateRequest
+	| LikePromptClose;
 
 // ── main → UI ────────────────────────────────────────────────────────────────
 export interface ScanResult extends Envelope<'scan-result'> {
@@ -179,6 +190,11 @@ export interface TelemetryState extends Envelope<'telemetry-state'> {
 	firstScanDone: boolean;
 }
 
+/** Whether the LS-35 "Like on Community" line is closed for good. */
+export interface LikePromptState extends Envelope<'like-prompt-state'> {
+	dismissed: boolean;
+}
+
 export type MainToUi =
 	| ScanResult
 	| ExtractionResult
@@ -189,7 +205,8 @@ export type MainToUi =
 	| RtlFlagged
 	| PreviewState
 	| PreviewResult
-	| TelemetryState;
+	| TelemetryState
+	| LikePromptState;
 
 export type AnyMessage = UiToMain | MainToUi;
 
@@ -201,6 +218,7 @@ export interface RequestResponse {
 	'overflow-scan-request': OverflowScanResult;
 	'preview-state-request': PreviewState;
 	'telemetry-state-request': TelemetryState;
+	'like-prompt-state-request': LikePromptState;
 }
 
 /**
@@ -217,6 +235,7 @@ export const RESPONSE_TYPE: { [T in keyof RequestResponse]: RequestResponse[T]['
 	'overflow-scan-request': 'overflow-scan-result',
 	'preview-state-request': 'preview-state',
 	'telemetry-state-request': 'telemetry-state',
+	'like-prompt-state-request': 'like-prompt-state',
 };
 
 /**
@@ -246,6 +265,8 @@ const UI_TO_MAIN_TYPES: Record<UiToMain['type'], true> = {
 	'open-waitlist': true,
 	'telemetry-mark': true,
 	'telemetry-state-request': true,
+	'like-prompt-state-request': true,
+	'like-prompt-close': true,
 };
 
 const MAIN_TO_UI_TYPES: Record<MainToUi['type'], true> = {
@@ -259,6 +280,7 @@ const MAIN_TO_UI_TYPES: Record<MainToUi['type'], true> = {
 	'preview-state': true,
 	'preview-result': true,
 	'telemetry-state': true,
+	'like-prompt-state': true,
 };
 
 /**

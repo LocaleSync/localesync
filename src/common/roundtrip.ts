@@ -45,6 +45,7 @@ const PROBED_COMMANDS: Record<CommandType, boolean> = {
 	'resize-window': false, // resizes the real plugin window; no reply at all
 	'open-waitlist': false, // opens a real browser tab; never probe
 	'telemetry-mark': false, // writes the user's clientStorage
+	'like-prompt-close': false, // writes the user's clientStorage; `like` opens a real browser tab
 };
 
 /** The commands the driver sends and main's scaffold answers, in send order. */

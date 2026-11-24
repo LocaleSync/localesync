@@ -2,6 +2,7 @@ import { clampWindowSize } from '../common/shell';
 import { applyBatchLeave } from './devtools/applyBatchLeave';
 import { generateExportCases } from './devtools/generateExportCases';
 import { generateExtractKeys } from './devtools/generateExtractKeys';
+import { benchmarkOverflow } from './devtools/benchmarkOverflow';
 import { generateLargeFile } from './devtools/generateLargeFile';
 import { generateOverflowSpike } from './devtools/generateOverflowSpike';
 import { generatePreview } from './devtools/generatePreview';
@@ -19,6 +20,7 @@ import { registerRtlMirror } from './rtl';
 import { runRtlCheck } from './rtl/check';
 import { runPseudoLocCheck } from './pseudoloc/check';
 import { registerRoundtrip } from './roundtrip';
+import { registerLikePrompt } from './like-prompt';
 import { registerTelemetry } from './telemetry';
 import { TELEMETRY_KEY } from './telemetry-flags';
 import { registerCloseHandler, restoreAll } from './snapshot';
@@ -68,6 +70,7 @@ export default async function () {
 	registerPreview();
 	// LS-13: the Pro waitlist handoff and the first-run telemetry flags.
 	registerTelemetry();
+	registerLikePrompt();
 	registerWindow();
 	// Dev scaffolds, dev builds only (Vite strips these branches): LS-3 kitchen-sink golden checks,
 	// the LS-4 snapshot apply→restore acceptance cycle (both piggyback on page scan-request), and
@@ -311,6 +314,24 @@ export default async function () {
 					.catch((err: unknown) => {
 						console.error(
 							`[dev] generateExportCases failed: ${err instanceof Error ? err.message : String(err)}`,
+						);
+					});
+				return;
+			}
+
+			if (devType === '__dev:benchmark-overflow') {
+				console.log('[dev] benchmarkOverflow: 3 runs on the current page, language de…');
+				void benchmarkOverflow()
+					.then((b) => {
+						console.log(
+							`[dev] benchmarkOverflow: ${b.eligibleNodes} eligible nodes, traverse ${b.traverseMs} ms, ` +
+								`scans ${b.scanMs.join(' / ')} ms → ${b.msPerNode} ms/node, max heartbeat lag ${b.maxLagMs} ms. ` +
+								`Suggested: MS_PER_NODE = ${b.msPerNode} → large-file advisory at ${b.suggestedThreshold} nodes.`,
+						);
+					})
+					.catch((err: unknown) => {
+						console.error(
+							`[dev] benchmarkOverflow failed: ${err instanceof Error ? err.message : String(err)}`,
 						);
 					});
 				return;
