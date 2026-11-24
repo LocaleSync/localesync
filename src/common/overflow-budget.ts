@@ -11,12 +11,12 @@
 export const LARGE_FILE_SECONDS = 10;
 
 /**
- * Measured cost of one eligible node through scanOverflow (re-fetch + clone + font load + reads +
- * remove), in ms, one target language. PROVISIONAL: 20 ms reproduces the old 500-node placeholder
- * at a 10 s budget. Replace with the median `msPerNode` that the dev "Benchmark overflow" button
- * reports on fixtures/large-file.fig (LS-15).
+ * Measured cost of one eligible node through scanOverflow (traversal + re-fetch + clone + font load
+ * + reads + remove), in ms, one target language. Benchmarked 2026-11-24 on fixtures/large-file.fig
+ * (1500 eligible nodes, Figma desktop, Apple silicon): scans of 47.8 / 46.9 / 46.9 s → 31.29 ms/node
+ * median. Re-run the dev "Benchmark overflow" button after any change to the clone cycle (LS-15).
  */
-export const MS_PER_NODE = 20;
+export const MS_PER_NODE = 31.29;
 
 /** The node count at which a scan is projected to exceed `seconds`. Always at least 1. */
 export function largeFileNodeThreshold(seconds: number = LARGE_FILE_SECONDS, msPerNode: number = MS_PER_NODE): number {

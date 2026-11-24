@@ -9,9 +9,9 @@ describe('largeFileNodeThreshold — node count derived from a time budget', () 
 		expect(largeFileNodeThreshold(5, 3)).toBe(1667); // rounds up: the warning fires past the budget
 	});
 
-	it('keeps the provisional defaults equal to the old 500-node placeholder', () => {
-		expect(largeFileNodeThreshold(LARGE_FILE_SECONDS, MS_PER_NODE)).toBe(500);
-		expect(largeFileNodeThreshold()).toBe(500);
+	it('derives 320 nodes from the benchmarked defaults (10 s at 31.29 ms/node)', () => {
+		expect(largeFileNodeThreshold(LARGE_FILE_SECONDS, MS_PER_NODE)).toBe(320);
+		expect(largeFileNodeThreshold()).toBe(320);
 	});
 
 	it.each([
