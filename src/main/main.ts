@@ -19,6 +19,7 @@ import { registerRtlMirror } from './rtl';
 import { runRtlCheck } from './rtl/check';
 import { runPseudoLocCheck } from './pseudoloc/check';
 import { registerRoundtrip } from './roundtrip';
+import { registerLikePrompt } from './like-prompt';
 import { registerTelemetry } from './telemetry';
 import { TELEMETRY_KEY } from './telemetry-flags';
 import { registerCloseHandler, restoreAll } from './snapshot';
@@ -68,6 +69,7 @@ export default async function () {
 	registerPreview();
 	// LS-13: the Pro waitlist handoff and the first-run telemetry flags.
 	registerTelemetry();
+	registerLikePrompt();
 	registerWindow();
 	// Dev scaffolds, dev builds only (Vite strips these branches): LS-3 kitchen-sink golden checks,
 	// the LS-4 snapshot apply→restore acceptance cycle (both piggyback on page scan-request), and

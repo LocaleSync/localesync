@@ -24,6 +24,8 @@ const UI_TO_MAIN = [
 	'open-waitlist',
 	'telemetry-mark',
 	'telemetry-state-request',
+	'like-prompt-state-request',
+	'like-prompt-close',
 ] as const;
 const MAIN_TO_UI = [
 	'scan-result',
@@ -36,6 +38,7 @@ const MAIN_TO_UI = [
 	'preview-state',
 	'preview-result',
 	'telemetry-state',
+	'like-prompt-state',
 ] as const;
 const ALL_TYPES = [...UI_TO_MAIN, ...MAIN_TO_UI];
 

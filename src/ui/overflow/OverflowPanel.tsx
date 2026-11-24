@@ -21,8 +21,18 @@ import {
 	stoppedCount,
 	summaryCount,
 } from './copy';
+import { LikeLine } from './LikeLine';
+import { showLikePrompt } from './like';
 import { foundCount, initialOverflowState, overflowReducer, visibleVerdicts, type ScanPhase } from './state';
-import type { ErrorCode, OverflowScanCancel, ScanScope, SelectNode, TelemetryMark } from '../../common/messages';
+import type {
+	ErrorCode,
+	LikePromptClose,
+	OverflowScanCancel,
+	ScanScope,
+	SelectNode,
+	TelemetryMark,
+} from '../../common/messages';
+import type { LikePromptAction } from '../../common/community';
 import { markFirstScan, track } from '../telemetry';
 import type { OverflowFilter, OverflowSort } from '../../common/overflow';
 import type { OverflowVerdict } from '../../common/models';
@@ -44,6 +54,30 @@ export function OverflowPanel() {
 	// A jump is a separate exchange with its own id. Kept apart from the scan id so a `node-gone`
 	// error cannot be mistaken for a scan failure.
 	const jumpId = useRef<string | null>(null);
+	// LS-35: true until main says otherwise, so a slow or failed state request hides the line.
+	const [likeDismissed, setLikeDismissed] = useState(true);
+
+	useEffect(() => {
+		let cancelled = false;
+		request('like-prompt-state-request', {}).then(
+			(result) => {
+				if (!cancelled) setLikeDismissed(result.dismissed);
+			},
+			() => {
+				// Best-effort: an unanswered request leaves the line hidden.
+			},
+		);
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	// Hidden locally at once; main opens the link (for `like`) and persists the dismissal. If
+	// openExternal throws, main persists nothing, so the line returns next launch.
+	const onLikeClose = useCallback((action: LikePromptAction) => {
+		setLikeDismissed(true);
+		send<LikePromptClose>({ type: 'like-prompt-close', action });
+	}, []);
 
 	useEffect(() => {
 		const offProgress = on('progress', (msg) => {
@@ -135,6 +169,12 @@ export function OverflowPanel() {
 	const emptyState = resolveState(state.phase, state.errorCode, state.verdicts, rows, nodeCount);
 	// Hidden in every StateView state and throughout scanning; shown only in the working states.
 	const hasFooter = emptyState === null && !scanning;
+	const likeVisible = showLikePrompt({
+		phase: state.phase,
+		inEmptyState: emptyState !== null,
+		rowCount: rows.length,
+		dismissed: likeDismissed,
+	});
 
 	return (
 		<>
@@ -189,6 +229,7 @@ export function OverflowPanel() {
 								jumpLabel={LABELS.jump}
 							/>
 						))}
+				{likeVisible ? <LikeLine onClose={onLikeClose} /> : null}
 			</ResultsList>
 
 			{hasFooter ? <ProStub pillar="matrix" /> : null}
