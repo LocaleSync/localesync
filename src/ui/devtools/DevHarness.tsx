@@ -60,6 +60,13 @@ export function DevHarness() {
 				<button type="button" onClick={() => void runBridgeRegression()}>
 					Run LS-8.2 bridge regression (large-file)
 				</button>
+				{/* LS-15: read-only, ~3 full scans — run against large-file.fig and paste the console line. */}
+				<button
+					type="button"
+					onClick={() => parent.postMessage({ pluginMessage: { type: '__dev:benchmark-overflow' } }, '*')}
+				>
+					Benchmark overflow (large-file)
+				</button>
 				{/* Writes plugin data — extract-keys.fig only; main refuses without its sentinel row. */}
 				<button type="button" onClick={() => void runExtractCheck()}>
 					Run LS-9 extract check

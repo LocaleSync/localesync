@@ -21,6 +21,7 @@ import {
 	stoppedCount,
 	summaryCount,
 } from './copy';
+import { largeFileNodeThreshold } from '../../common/overflow-budget';
 import { LikeLine } from './LikeLine';
 import { showLikePrompt } from './like';
 import { foundCount, initialOverflowState, overflowReducer, visibleVerdicts, type ScanPhase } from './state';
@@ -37,10 +38,11 @@ import { markFirstScan, track } from '../telemetry';
 import type { OverflowFilter, OverflowSort } from '../../common/overflow';
 import type { OverflowVerdict } from '../../common/models';
 
-/** Advisory only, and it never blocks a scan — provisional until LS-15's time-budget benchmark
- *  replaces it. The in-flight state already handles unbounded files through determinate progress,
- *  a live count, streaming rows and Stop (LS-8.2 §2.7). */
-const LARGE_FILE_NODES = 500;
+/** Advisory only, and it never blocks a scan. Derived from LS-15's time budget — projected scan
+ *  time over LARGE_FILE_SECONDS — not hardcoded (src/common/overflow-budget.ts). The in-flight
+ *  state already handles unbounded files through determinate progress, a live count, streaming
+ *  rows and Stop (LS-8.2 §2.7). */
+const LARGE_FILE_NODES = largeFileNodeThreshold();
 
 export function OverflowPanel() {
 	const [state, dispatch] = useReducer(overflowReducer, undefined, initialOverflowState);
